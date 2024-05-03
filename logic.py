@@ -1,6 +1,9 @@
 from random import randint
 import requests
 from random import randint
+from datetime import datetime, timedelta
+
+
 class Pokemon:
     pokemons = {}
     # Инициализация объекта (конструктор)
@@ -13,9 +16,12 @@ class Pokemon:
         self.xp_now = 0
         self.xp_need = 100
 
-        self.hp_max = 1
-        self.hp_now = 1
-        self.power = 1
+        self.hp_max = randint(300,350)
+        self.hp_now = self.hp_max
+        self.power = randint(10,15)
+
+        self.type = "Обычный"
+        self.last_feed_time = datetime.now()
 
         self.img = self.get_img()
         self.name = self.get_name()
@@ -83,7 +89,8 @@ class Pokemon:
                 "level": self.level,
                 "xp_now": self.xp_now,
                 "xp_need": self.xp_need,
-                "abilities": self.abilities}
+                "abilities": self.abilities,
+                "type": self.type}
 
     # Метод класса для получения картинки покемона
     def show_img(self):
@@ -121,20 +128,33 @@ class Pokemon:
             else:
                 return f"Победа @{self.pokemon_trainer} над @{enemy.pokemon_trainer}!\n@{self.pokemon_trainer} получает {xp} опыта!"    
 
-
+    def feed(self, feed_interval = 20, hp_increase = 10 ):
+        if self.hp_now >= self.hp_max:
+            current_time = datetime.now()
+            delta_time = timedelta(seconds=feed_interval)
+            if (current_time - self.last_feed_time) > delta_time:
+                self.hp_now += hp_increase
+                if self.hp_now >= self.hp_max:
+                    self.hp_now = self.hp_max
+                self.last_feed_time = current_time
+                return f"Здоровье покемона увеличено. Текущее здоровье: {self.hp_now}"
+            else:
+                return f"Следующее время кормления покемона: {current_time-delta_time}"
+        else:
+            return f"У вашего покемона максимальное хп"
+        
 class Wizard(Pokemon):
+
     def __init__(self,pokemon_trainer):
         super().__init__(pokemon_trainer)
         self.hp_max = randint(300,450)
         self.hp_now = self.hp_max
         self.power = randint(10,20)
         self.type = "Волшебник"
-
-    def info(self):
-        result = super().info()
-        result["type"] = self.type
-        return result
     
+    def feed(self, hp_increase):
+        return super().feed(feed_interval=10)
+
 class Fighter(Pokemon):
     def __init__(self,pokemon_trainer):
         super().__init__(pokemon_trainer)
@@ -149,11 +169,9 @@ class Fighter(Pokemon):
         result = super().attack(enemy)
         self.power -= super_power
         return result + f"\nБоец применил супер-атаку силой: {super_power} "
-    
-    def info(self):
-        result = super().info()
-        result["type"] = self.type
-        return result
+     
+    def feed(self, hp_increase):
+        return super().feed(hp_increase=20)
     
 # if __name__ == '__main__':
 #     wizard = Wizard("username1")

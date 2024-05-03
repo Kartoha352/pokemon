@@ -24,11 +24,12 @@ def go(message):
             ability_effect = pokemon_info["abilities"][i[1]].replace("\n\n","\n")
             pokemon_abilities += f"{i[0]+1}. {ability_name}\n — {ability_effect}\n\n"
         # bot.send_message(message.chat.id, f"Имя вашего пакемона: {pokemon_info['name']}\nСпособности:\n{pokemon_abilities}Картинка вашего пакемона:")
-        bot.send_photo(message.chat.id, pokemon.show_img(), caption=f"Имя вашего пакемона: {pokemon_info['name']}\nУровень: {pokemon_info['level']}\nОпыт: {pokemon_info['xp_now']}/{pokemon_info['xp_need']}\nСпособности:\n{pokemon_abilities if pokemon_abilities != '' else 'Нет'}")
+        bot.send_message(message.chat.id, f"Тип покемона: {pokemon_info['type']}\nИмя вашего пакемона: {pokemon_info['name']}\nУровень: {pokemon_info['level']} ({pokemon_info['xp_now']}/{pokemon_info['xp_need']})\nЗдоровье: {pokemon_info['hp_now']}/{pokemon_info['hp_max']}\nСила атаки: {pokemon_info['power']}\nСпособности:\n{pokemon_abilities if pokemon_abilities != '' else 'Нет'}")
+        bot.send_photo(message.chat.id, pokemon.show_img())
     else:
         bot.reply_to(message, "Ты уже создал себе покемона")
 
-@bot.message_handler(commands=['pokemon'])
+@bot.message_handler(commands=['pokemon','info'])
 def pokemon(message):
     if message.from_user.username in Pokemon.pokemons.keys():
         pokemon = Pokemon.pokemons[message.from_user.username]
@@ -38,13 +39,13 @@ def pokemon(message):
             ability_name = i[1]
             ability_effect = pokemon_info["abilities"][i[1]].replace("\n\n","\n")
             pokemon_abilities += f"{i[0]+1}. {ability_name}\n — {ability_effect}\n\n"
-        # bot.send_message(message.chat.id, f"Имя вашего пакемона: {pokemon_info['name']}\nСпособности:\n{pokemon_abilities}Картинка вашего пакемона:")
-        bot.send_photo(message.chat.id, pokemon.show_img(), caption=f"Тип покемона: {pokemon_info['type']}\nИмя вашего пакемона: {pokemon_info['name']}\nУровень: {pokemon_info['level']} ({pokemon_info['xp_now']}/{pokemon_info['xp_need']})\nЗдоровье: {pokemon_info['hp']}\nСила атаки: {pokemon_info['power']}\nСпособности:\n{pokemon_abilities if pokemon_abilities != '' else 'Нет'}")
+        bot.send_message(message.chat.id, f"Тип покемона: {pokemon_info['type']}\nИмя вашего пакемона: {pokemon_info['name']}\nУровень: {pokemon_info['level']} ({pokemon_info['xp_now']}/{pokemon_info['xp_need']})\nЗдоровье: {pokemon_info['hp_now']}/{pokemon_info['hp_max']}\nСила атаки: {pokemon_info['power']}\nСпособности:\n{pokemon_abilities if pokemon_abilities != '' else 'Нет'}")
+        bot.send_photo(message.chat.id, pokemon.show_img())
     else:
         bot.reply_to(message, "Ты не создал себе покемона")
 
-@bot.message_handler(commands=['feed'])
-def feed(message):
+@bot.message_handler(commands=['walk'])
+def walk(message):
     if message.from_user.username in Pokemon.pokemons.keys():
         pokemon = Pokemon.pokemons[message.from_user.username]
         xp = randint(10,15)
@@ -59,11 +60,14 @@ def feed(message):
 @bot.message_handler(commands=['atack'])
 def atack(message):
     if message.reply_to_message:
-        if message.from_user.username in Pokemon.pokemons.keys() and message.reply_to_message.from_user.username in Pokemon.pokemons.keys():
-            pokemon_enemy = Pokemon.pokemons[message.reply_to_message.from_user.username]
-            pokemon_user = Pokemon.pokemons[message.from_user.username]
-            result = pokemon_user.attack(pokemon_enemy)
-            bot.send_message(message.chat.id, result)
+        if message.from_user.username in Pokemon.pokemons.keys(): 
+            if message.reply_to_message.from_user.username in Pokemon.pokemons.keys():
+                pokemon_enemy = Pokemon.pokemons[message.reply_to_message.from_user.username]
+                pokemon_user = Pokemon.pokemons[message.from_user.username]
+                result = pokemon_user.attack(pokemon_enemy)
+                bot.send_message(message.chat.id, result)
+            else:
+                bot.reply_to(message, "Противник ещё не создал себе покемона")
         else:
             bot.reply_to(message, "Ты не создал себе покемона")
     else:
