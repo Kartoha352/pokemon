@@ -129,19 +129,16 @@ class Pokemon:
                 return f"Победа @{self.pokemon_trainer} над @{enemy.pokemon_trainer}!\n@{self.pokemon_trainer} получает {xp} опыта!"    
 
     def feed(self, feed_interval = 20, hp_increase = 10 ):
-        if self.hp_now >= self.hp_max:
-            current_time = datetime.now()
-            delta_time = timedelta(seconds=feed_interval)
-            if (current_time - self.last_feed_time) > delta_time:
-                self.hp_now += hp_increase
-                if self.hp_now >= self.hp_max:
-                    self.hp_now = self.hp_max
-                self.last_feed_time = current_time
-                return f"Здоровье покемона увеличено. Текущее здоровье: {self.hp_now}"
-            else:
-                return f"Следующее время кормления покемона: {current_time-delta_time}"
+        current_time = datetime.now()
+        delta_time = timedelta(seconds=feed_interval)
+        if (current_time - self.last_feed_time) > delta_time:
+            self.hp_now += hp_increase
+            if self.hp_now >= self.hp_max:
+                self.hp_now = self.hp_max
+            self.last_feed_time = current_time
+            return f"Здоровье покемона увеличено. Текущее здоровье: {self.hp_now}"
         else:
-            return f"У вашего покемона максимальное хп"
+            return f"Следующее время кормления покемона: {current_time-delta_time}"
         
 class Wizard(Pokemon):
 

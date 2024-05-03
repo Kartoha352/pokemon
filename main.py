@@ -57,6 +57,19 @@ def walk(message):
         bot.reply_to(message, "Ты не создал себе покемона")
 
 
+@bot.message_handler(commands=['feed'])
+def walk(message):
+    if message.from_user.username in Pokemon.pokemons.keys():
+        pokemon = Pokemon.pokemons[message.from_user.username]
+        info = pokemon.info()
+        if info["hp_max"] > info["hp_now"]:
+            result = pokemon.feed()
+            bot.send_message(message.chat.id, result)
+        else:
+            bot.reply_to(message, "У твоего покемона и максимальное здоровье")
+    else:
+        bot.reply_to(message, "Ты не создал себе покемона")
+
 @bot.message_handler(commands=['atack'])
 def atack(message):
     if message.reply_to_message:
